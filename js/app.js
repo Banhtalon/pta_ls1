@@ -96,8 +96,8 @@ async function initPyodide() {
 // TÍNH NĂNG: NỘP BÁO CÁO (GOOGLE SHEETS)
 // =====================================================================
 
-// TODO: Thay thế bằng đường link Web App của Google Apps Script sau khi deploy
-const GOOGLE_SCRIPT_URL = "REPLACE_WITH_YOUR_WEB_APP_URL";
+// Đường link Web App của Google Apps Script
+const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzt_lsTKUBK54kuOdowYcnFuQaQvLzC6LDFZOchRPDaPkfukueiD9xjpQ-yv8DazGkxNg/exec";
 
 /**
  * Thu thập dữ liệu và gửi lên Google Sheets
