@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="PyLearn - Nền tảng ôn tập Python cơ bản cho học sinh. 50 câu trắc nghiệm và 10 bài thực hành từ dễ đến khó.">
+  <title>PyLearn - Ôn tập Python cơ bản</title>
+
+  <!-- ================================================================= -->
+  <!-- FONT: Inter cho text thường, Fira Code cho code editor            -->
+  <!-- ================================================================= -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+
+  <!-- CSS chính -->
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- ================================================================= -->
+  <!-- HEADER: Logo + Tab điều hướng                                     -->
+  <!-- ================================================================= -->
+  <header id="main-header">
+    <div class="header-container">
+      <!-- Logo -->
+      <div class="logo">
+        <span class="logo-icon">🐍</span>
+        <span class="logo-text">PyLearn</span>
+      </div>
+
+      <!-- Tab điều hướng: Lý thuyết / Thực hành -->
+      <nav class="main-nav">
+        <button class="nav-tab active" data-tab="quiz" id="btn-tab-quiz">
+          Lý thuyết
+        </button>
+        <button class="nav-tab" data-tab="practice" id="btn-tab-practice">
+          Thực hành
+        </button>
+      </nav>
+
+      <!-- Icon cài đặt (trang trí) -->
+      <div class="header-actions">
+        <button class="btn-icon" id="btn-settings" title="Cài đặt">
+          ⚙️
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ================================================================= -->
+  <!-- NỘI DUNG CHÍNH                                                    -->
+  <!-- ================================================================= -->
+  <main id="main-content">
+
+    <!-- =============================================================== -->
+    <!-- PHẦN LÝ THUYẾT (QUIZ) - 50 câu trắc nghiệm                    -->
+    <!-- =============================================================== -->
+    <section id="section-quiz" class="content-section active">
+      <div class="quiz-layout">
+
+        <!-- Cột trái: Danh sách câu hỏi -->
+        <div class="quiz-questions-area">
+          <div class="quiz-header">
+            <h1>Bài tập: Cơ bản về Python</h1>
+            <p class="quiz-description">
+              Hoàn thành 50 câu hỏi trắc nghiệm để kiểm tra kiến thức lý thuyết của bạn.
+            </p>
+          </div>
+
+          <!-- Container để JS render 50 câu hỏi -->
+          <div id="quiz-questions-container"></div>
+
+          <!-- Nút nộp bài -->
+          <div class="quiz-submit-area">
+            <button id="btn-submit-quiz" class="btn-primary btn-large">
+              📝 Nộp bài
+            </button>
+          </div>
+        </div>
+
+        <!-- Cột phải: Bản đồ câu hỏi -->
+        <div class="quiz-map-area">
+          <div class="quiz-map-sticky">
+            <h3 class="quiz-map-title">Bản đồ câu hỏi</h3>
+            <p class="quiz-map-progress" id="quiz-progress">Tiến độ: 0/50</p>
+            <div class="quiz-map-grid" id="quiz-map-grid">
+              <!-- JS sẽ render 50 ô tương ứng 50 câu -->
+            </div>
+            <!-- Chú thích màu -->
+            <div class="quiz-map-legend">
+              <div class="legend-item">
+                <span class="legend-dot legend-dot-default"></span>
+                Chưa trả lời
+              </div>
+              <div class="legend-item">
+                <span class="legend-dot legend-dot-answered"></span>
+                Đã trả lời
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =============================================================== -->
+    <!-- PHẦN THỰC HÀNH - 10 bài code                                    -->
+    <!-- =============================================================== -->
+    <section id="section-practice" class="content-section">
+      <div class="practice-layout">
+
+        <!-- Sidebar trái: Danh sách bài tập -->
+        <aside class="practice-sidebar" id="practice-sidebar">
+          <h3 class="sidebar-title">Danh sách bài tập</h3>
+          <!-- JS sẽ render danh sách 10 bài -->
+          <div id="practice-list-container"></div>
+        </aside>
+
+        <!-- Khu vực chính: Đề bài + Code editor + Kết quả -->
+        <div class="practice-main">
+          <!-- Tiêu đề bài -->
+          <div class="practice-header" id="practice-header">
+            <div class="practice-title-row">
+              <h2 id="practice-title">Chọn một bài tập để bắt đầu</h2>
+              <span class="difficulty-badge" id="practice-difficulty"></span>
+            </div>
+            <p id="practice-description" class="practice-description">
+              Chọn bài tập từ danh sách bên trái để xem đề bài và bắt đầu code.
+            </p>
+          </div>
+
+          <!-- Gợi ý các bước làm -->
+          <div class="hints-section" id="hints-section" style="display: none;">
+            <button class="btn-hints-toggle" id="btn-hints-toggle">
+              💡 Gợi ý
+            </button>
+            <div class="hints-content" id="hints-content" style="display: none;">
+              <!-- JS sẽ render các bước gợi ý -->
+            </div>
+          </div>
+
+          <!-- Code editor -->
+          <div class="code-editor-section" id="code-editor-section" style="display: none;">
+            <div class="editor-toolbar">
+              <span class="editor-filename">main.py</span>
+              <button class="btn-run" id="btn-run-code">
+                ▶ Kiểm tra
+              </button>
+            </div>
+            <div class="editor-wrapper">
+              <!-- Số dòng -->
+              <div class="line-numbers" id="line-numbers">1</div>
+              <!-- Textarea code -->
+              <textarea
+                id="code-editor"
+                class="code-textarea"
+                spellcheck="false"
+                placeholder="# Viết code Python của bạn ở đây..."
+              ></textarea>
+            </div>
+          </div>
+
+          <!-- Khu vực kết quả -->
+          <div class="results-section" id="results-section" style="display: none;">
+            <h3 class="results-title">📋 Kết quả</h3>
+            <div id="results-container"></div>
+          </div>
+
+          <!-- Trạng thái Pyodide -->
+          <div class="pyodide-status" id="pyodide-status">
+            <span class="loading-spinner"></span>
+            Đang tải Python runtime...
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ================================================================= -->
+  <!-- MODAL: Kết quả bài trắc nghiệm                                   -->
+  <!-- ================================================================= -->
+  <div class="modal-overlay" id="quiz-result-modal" style="display: none;">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>📊 Kết quả bài kiểm tra</h2>
+        <button class="btn-close-modal" id="btn-close-modal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <!-- Điểm số tổng quan -->
+        <div class="score-circle" id="score-circle">
+          <span class="score-number" id="score-number">0</span>
+          <span class="score-label">/50</span>
+        </div>
+        <p class="score-text" id="score-text">Bạn đã hoàn thành bài kiểm tra!</p>
+        <div class="score-details">
+          <div class="score-detail correct">
+            <span class="detail-icon">✅</span>
+            <span class="detail-label">Đúng:</span>
+            <span class="detail-value" id="score-correct">0</span>
+          </div>
+          <div class="score-detail wrong">
+            <span class="detail-icon">❌</span>
+            <span class="detail-label">Sai:</span>
+            <span class="detail-value" id="score-wrong">0</span>
+          </div>
+          <div class="score-detail skipped">
+            <span class="detail-icon">⬜</span>
+            <span class="detail-label">Bỏ qua:</span>
+            <span class="detail-value" id="score-skipped">0</span>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-secondary" id="btn-review-quiz">🔍 Xem lại đáp án</button>
+        <button class="btn-primary" id="btn-retry-quiz">🔄 Làm lại</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================================================================= -->
+  <!-- FOOTER                                                            -->
+  <!-- ================================================================= -->
+  <footer id="main-footer">
+    <div class="footer-container">
+      <p class="footer-copyright">© 2024 PyLearn Education. Nền tảng học Python cho học sinh.</p>
+      <nav class="footer-links">
+        <a href="#">Tài liệu học tập</a>
+        <a href="#">Cộng đồng</a>
+        <a href="#">Hỗ trợ</a>
+      </nav>
+    </div>
+  </footer>
+
+  <!-- ================================================================= -->
+  <!-- SCRIPTS                                                           -->
+  <!-- ================================================================= -->
+  <!-- Pyodide: Runtime Python trong trình duyệt -->
+  <script src="https://cdn.jsdelivr.net/pyodide/v0.24.1/full/pyodide.js"></script>
+
+  <!-- Dữ liệu -->
+  <script src="js/quiz-data.js"></script>
+  <script src="js/practice-data.js"></script>
+
+  <!-- Logic -->
+  <script src="js/quiz.js"></script>
+  <script src="js/practice.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
