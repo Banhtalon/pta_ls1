@@ -32,8 +32,8 @@ function renderPracticeList() {
   for (let i = 0; i < PRACTICE_DATA.length; i++) {
     const exercise = PRACTICE_DATA[i];
 
-    // Bài 1 luôn mở. Bài N mở khi bài N-1 đã hoàn thành.
-    const isUnlocked = (i === 0) || completedExercises[PRACTICE_DATA[i - 1].id];
+    // Tắt tính năng mở khoá tuần tự, tất cả bài đều được mở
+    const isUnlocked = true;
     const isCompleted = completedExercises[exercise.id];
     const isActive = (i === currentExerciseIndex);
 
@@ -88,12 +88,8 @@ function renderPracticeList() {
 function selectExercise(index) {
   const exercise = PRACTICE_DATA[index];
 
-  // Kiểm tra bài có được mở khóa không
-  const isUnlocked = (index === 0) || completedExercises[PRACTICE_DATA[index - 1].id];
-  if (!isUnlocked) {
-    alert('🔒 Bạn cần hoàn thành bài trước đó để mở khóa bài này!');
-    return;
-  }
+  // Tắt tính năng mở khoá tuần tự, tất cả bài đều được mở
+  const isUnlocked = true;
 
   currentExerciseIndex = index;
 
