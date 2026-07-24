@@ -193,18 +193,38 @@ body {
   align-items: center;
 }
 
-.btn-icon {
-  background: none;
+.report-section {
+  gap: 10px;
+}
+
+.input-name {
+  padding: 8px 12px;
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  font-family: inherit;
+  font-size: 14px;
+  width: 180px;
+  outline: none;
+  transition: border-color var(--transition-fast);
+}
+
+.input-name:focus {
+  border-color: var(--color-accent);
+}
+
+.btn-submit-report {
+  background: var(--color-accent);
+  color: white;
   border: none;
-  font-size: 20px;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-weight: 600;
   cursor: pointer;
-  padding: 8px;
-  border-radius: 50%;
   transition: background var(--transition-fast);
 }
 
-.btn-icon:hover {
-  background: rgba(255, 255, 255, 0.1);
+.btn-submit-report:hover {
+  background: #d99500;
 }
 
 /* --------------------------------------------------------------------- 

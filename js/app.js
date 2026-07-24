@@ -93,6 +93,87 @@ async function initPyodide() {
 }
 
 // =====================================================================
+// TÍNH NĂNG: NỘP BÁO CÁO (GOOGLE SHEETS)
+// =====================================================================
+
+// TODO: Thay thế bằng đường link Web App của Google Apps Script sau khi deploy
+const GOOGLE_SCRIPT_URL = "REPLACE_WITH_YOUR_WEB_APP_URL";
+
+/**
+ * Thu thập dữ liệu và gửi lên Google Sheets
+ */
+async function submitReport() {
+  const nameInput = document.getElementById('student-name');
+  const studentName = nameInput.value.trim();
+
+  if (!studentName) {
+    alert("Vui lòng nhập họ tên của bạn trước khi nộp bài!");
+    nameInput.focus();
+    return;
+  }
+
+  // Thu thập dữ liệu Lý thuyết
+  const quizAnswers = JSON.parse(localStorage.getItem('quizAnswers')) || {};
+  let correctQuizCount = 0;
+  for (let key in quizAnswers) {
+    if (quizAnswers[key].isCorrect) {
+      correctQuizCount++;
+    }
+  }
+
+  // Thu thập dữ liệu Thực hành
+  const practiceProgress = JSON.parse(localStorage.getItem('practiceProgress')) || {};
+  let completedPracticeCount = 0;
+  for (let key in practiceProgress) {
+    if (practiceProgress[key] === true) {
+      completedPracticeCount++;
+    }
+  }
+
+  // Hiển thị trạng thái đang gửi
+  const btnSubmit = document.getElementById('btn-submit-report');
+  const originalText = btnSubmit.textContent;
+  btnSubmit.textContent = "Đang gửi...";
+  btnSubmit.disabled = true;
+
+  try {
+    // Gọi API (Google Apps Script)
+    const response = await fetch(GOOGLE_SCRIPT_URL, {
+      method: "POST",
+      // Chú ý: Google Apps Script Web App yêu cầu header là text/plain để tránh lỗi CORS preflight
+      headers: {
+        "Content-Type": "text/plain;charset=utf-8",
+      },
+      body: JSON.stringify({
+        name: studentName,
+        quizScore: correctQuizCount,
+        practiceProgress: completedPracticeCount
+      })
+    });
+
+    const result = await response.json();
+    
+    if (result.status === 'success') {
+      alert(`Nộp bài thành công!\n- Bạn trả lời đúng ${correctQuizCount} câu lý thuyết.\n- Bạn đã hoàn thành ${completedPracticeCount} bài thực hành.`);
+    } else {
+      alert("Có lỗi xảy ra khi nộp bài: " + result.message);
+    }
+  } catch (error) {
+    console.error("Lỗi gửi báo cáo:", error);
+    // Nếu link Web App chưa được thay thế, báo cho người dùng
+    if (GOOGLE_SCRIPT_URL.includes("REPLACE_WITH_YOUR_WEB_APP_URL")) {
+      alert("Tính năng nộp bài chưa được cấu hình! Giáo viên cần nhập link Google Apps Script vào file app.js.");
+    } else {
+      alert("Lỗi kết nối! Vui lòng thử lại sau.");
+    }
+  } finally {
+    // Khôi phục nút
+    btnSubmit.textContent = originalText;
+    btnSubmit.disabled = false;
+  }
+}
+
+// =====================================================================
 // KHỞI TẠO TOÀN BỘ ỨNG DỤNG
 // =====================================================================
 
@@ -102,7 +183,8 @@ async function initPyodide() {
  * 1. Gắn sự kiện tab
  * 2. Khởi tạo phần Quiz
  * 3. Khởi tạo phần Practice
- * 4. Tải Pyodide (chạy nền, không chặn giao diện)
+ * 4. Gắn sự kiện nộp báo cáo
+ * 5. Tải Pyodide (chạy nền, không chặn giao diện)
  */
 document.addEventListener('DOMContentLoaded', () => {
   // BƯỚC 1: Khởi tạo điều hướng tab
@@ -114,6 +196,9 @@ document.addEventListener('DOMContentLoaded', () => {
   // BƯỚC 3: Khởi tạo phần Practice (render sidebar, gắn sự kiện)
   initPractice();
 
-  // BƯỚC 4: Tải Pyodide ở nền (không cần await vì không chặn UI)
+  // BƯỚC 4: Gắn sự kiện nộp báo cáo
+  document.getElementById('btn-submit-report').addEventListener('click', submitReport);
+
+  // BƯỚC 5: Tải Pyodide ở nền (không cần await và không chặn UI)
   initPyodide();
 });
