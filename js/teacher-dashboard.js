@@ -57,6 +57,9 @@ function renderTeacherDashboard() {
         </nav>
 
         <div class="td-sidebar-footer">
+          <button class="td-nav-btn" onclick="handleTeacherLogout()" style="color: #ef4444; margin-bottom: 12px;">
+            <span class="td-nav-icon">ğŸšª</span> ÄÄƒng xuáº¥t
+          </button>
           <a href="#/" class="td-back-link">â† Quay láº¡i trang há»c</a>
         </div>
       </aside>
@@ -1109,3 +1112,13 @@ async function syncPracticeResultToFirebase(lessonKey, completedExercises) {
     console.error('Lá»—i Ä‘á»“ng bá»™ practice lÃªn Firebase:', error);
   }
 }
+
+/**
+ * X? lı Ğang xu?t dành cho Giáo viên
+ */
+window.handleTeacherLogout = function() {
+  if (confirm('Th?y/Cô có ch?c ch?n mu?n dang xu?t kh?i trang Qu?n lı?')) {
+    localStorage.removeItem('pylearn_teacher_session');
+    window.location.hash = '#/teacher-login';
+  }
+};

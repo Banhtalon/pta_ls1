@@ -26,6 +26,9 @@ function parseRoute(hash) {
   if (parts[0] === 'teacher-dashboard') {
     return { page: 'teacher-dashboard' };
   }
+  if (parts[0] === 'teacher-login') {
+    return { page: 'teacher-login' };
+  }
   
   if (parts.length === 1) {
     return { page: 'list', level: parts[0] };
@@ -66,7 +69,25 @@ function handleRouteChange() {
     return;
   }
 
+  if (route.page === 'teacher-login') {
+    if (typeof renderTeacherLoginPage === 'function') {
+      renderTeacherLoginPage();
+    }
+    const header = document.getElementById('main-header');
+    if (header) header.style.display = 'none';
+    const footer = document.getElementById('main-footer');
+    if (footer) footer.style.display = 'none';
+    return;
+  }
+
   if (route.page === 'teacher-dashboard') {
+    // Kiem tra phien dang nhap cua giao vien
+    const teacherSession = localStorage.getItem('pylearn_teacher_session');
+    if (!teacherSession) {
+      navigateTo('#/teacher-login');
+      return;
+    }
+
     if (typeof renderTeacherDashboard === 'function') {
       renderTeacherDashboard();
     }
