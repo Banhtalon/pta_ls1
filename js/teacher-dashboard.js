@@ -547,6 +547,7 @@ async function loadAndRenderStudents(classId) {
           <tr>
             <th>STT</th>
             <th>Họ tên</th>
+            <th>Mật khẩu</th>
             <th>Lần hoạt động cuối</th>
             <th>Thao tác</th>
           </tr>
@@ -568,10 +569,14 @@ async function loadAndRenderStudents(classId) {
         }
       }
       
+      const pwd = student.password || '123456';
+      const safePwd = SafeDOM.escapeHTML(pwd);
+
       html += `
         <tr>
           <td>${stt++}</td>
           <td><strong>${safeName}</strong></td>
+          <td><span style="background: #e2e8f0; padding: 4px 8px; border-radius: 4px; font-family: monospace; font-size: 0.9em; color: #334155;">${safePwd}</span></td>
           <td>${lastActive}</td>
           <td>
             <button class="td-btn td-btn-small td-btn-danger btn-delete-student" data-id="${safeId}" data-name="${safeName}">
@@ -618,7 +623,8 @@ async function handleAddOneStudent() {
       name: studentName,
       classId: selectedClassId,
       createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-      lastActive: null
+      lastActive: null,
+      password: "123456"
     });
 
     input.value = '';
@@ -666,7 +672,8 @@ async function handleAddBulkStudents() {
         name: name,
         classId: selectedClassId,
         createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-        lastActive: null
+        lastActive: null,
+        password: "123456"
       });
     }
 

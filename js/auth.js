@@ -60,6 +60,12 @@ function renderLoginPage() {
           </select>
         </div>
 
+        <!-- Ô nhập mật khẩu (Mặc định ẩn) -->
+        <div class="login-form-group" id="login-password-group" style="display: none; margin-bottom: 24px;">
+          <label for="login-student-password">Mật khẩu</label>
+          <input type="password" id="login-student-password" class="login-input" placeholder="Nhập mật khẩu (mặc định: 123456)">
+        </div>
+
         <!-- Nút đăng nhập -->
         <button id="btn-login-submit" class="login-btn">Vào học</button>
 
@@ -79,6 +85,8 @@ function renderLoginPage() {
 
   // Khi chọn lớp → load danh sách học sinh của lớp đó
   var classSelect = document.getElementById('login-class-select');
+  var passwordGroup = document.getElementById('login-password-group');
+  
   classSelect.addEventListener('change', function () {
     var classId = classSelect.value;
     if (classId) {
@@ -88,6 +96,16 @@ function renderLoginPage() {
       var studentSelect = document.getElementById('login-student-select');
       studentSelect.innerHTML = '<option value="">-- Chọn lớp trước --</option>';
       studentSelect.disabled = true;
+      if (passwordGroup) passwordGroup.style.display = 'none';
+    }
+  });
+
+  var studentSelect = document.getElementById('login-student-select');
+  studentSelect.addEventListener('change', function () {
+    if (studentSelect.value && passwordGroup) {
+      passwordGroup.style.display = 'block';
+    } else if (passwordGroup) {
+      passwordGroup.style.display = 'none';
     }
   });
 
@@ -219,45 +237,86 @@ async function loadStudentsByClass(classId) {
  * Đồng thời ghi lastActive lên Firestore để giáo viên theo dõi.
  */
 async function handleStudentLogin() {
-  // Lấy giá trị từ dropdown
+  // Lấy giá trị từ dropdown và ô password
   var classSelect = document.getElementById('login-class-select');
   var studentSelect = document.getElementById('login-student-select');
+  var passwordInput = document.getElementById('login-student-password');
+  var errorMsg = document.getElementById('login-error-msg');
 
   var classId = classSelect ? classSelect.value : '';
   var studentId = studentSelect ? studentSelect.value : '';
+  var password = passwordInput ? passwordInput.value : '';
 
   // Kiểm tra đã chọn đầy đủ chưa
   if (!classId) {
-    alert('Vui lòng chọn lớp học!');
+    if(errorMsg) errorMsg.textContent = 'Vui lòng chọn lớp học!';
     return;
   }
   if (!studentId) {
-    alert('Vui lòng chọn tên học sinh!');
+    if(errorMsg) errorMsg.textContent = 'Vui lòng chọn tên học sinh!';
+    return;
+  }
+  if (!password) {
+    if(errorMsg) errorMsg.textContent = 'Vui lòng nhập mật khẩu!';
     return;
   }
 
-  // Lấy tên hiển thị từ option đang được chọn
-  var studentName = studentSelect.options[studentSelect.selectedIndex].textContent;
+  if (errorMsg) errorMsg.textContent = '';
+  
+  var btnLogin = document.getElementById('btn-login-submit');
+  if(btnLogin) {
+    btnLogin.disabled = true;
+    btnLogin.textContent = 'Đang kiểm tra...';
+  }
 
-  // Tạo object session cho học sinh
-  var studentSession = {
-    id: studentId,
-    name: studentName,
-    classId: classId,
-    isVerified: false // Đánh dấu chưa xác thực (TRACK-B)
-  };
+  try {
+    // Kiểm tra mật khẩu trên Firestore
+    if (!window.db) throw new Error("Mất kết nối CSDL");
+    const doc = await window.db.collection('students').doc(studentId).get();
+    
+    if (!doc.exists) {
+      if(errorMsg) errorMsg.textContent = 'Không tìm thấy thông tin học sinh!';
+      if(btnLogin) { btnLogin.disabled = false; btnLogin.textContent = 'Vào học'; }
+      return;
+    }
+    
+    const studentData = doc.data();
+    const dbPassword = studentData.password || "123456";
+    
+    if (password !== dbPassword) {
+      if(errorMsg) errorMsg.textContent = 'Sai mật khẩu!';
+      if(btnLogin) { btnLogin.disabled = false; btnLogin.textContent = 'Vào học'; }
+      return;
+    }
 
-  // Lưu session vào localStorage (dạng chuỗi JSON)
-  localStorage.setItem(SESSION_KEY, JSON.stringify(studentSession));
+    // Pass
+    var studentName = studentSelect.options[studentSelect.selectedIndex].textContent;
 
-  // Cập nhật biến toàn cục
-  window.currentStudent = studentSession;
+    // Tạo object session cho học sinh
+    var studentSession = {
+      id: studentId,
+      name: studentName,
+      classId: classId,
+      isVerified: true
+    };
 
-  // Cập nhật header hiện tên học sinh
-  updateHeaderWithStudent();
+    // Lưu session vào localStorage (dạng chuỗi JSON)
+    localStorage.setItem(SESSION_KEY, JSON.stringify(studentSession));
 
-  // Chuyển đến trang chủ
-  navigateTo('#/');
+    // Cập nhật biến toàn cục
+    window.currentStudent = studentSession;
+
+    // Cập nhật header hiện tên học sinh
+    updateHeaderWithStudent();
+
+    // Chuyển đến trang chủ
+    navigateTo('#/');
+  } catch (err) {
+    console.error("Lỗi xác thực:", err);
+    if(errorMsg) errorMsg.textContent = 'Lỗi kết nối CSDL!';
+    if(btnLogin) { btnLogin.disabled = false; btnLogin.textContent = 'Vào học'; }
+    return;
+  }
 
   // Ghi thời gian hoạt động cuối và khôi phục tiến độ từ Firestore về máy học sinh
   try {
@@ -389,6 +448,13 @@ function updateHeaderWithStudent() {
     nameSpan.className = 'login-student-name';
     nameSpan.textContent = `👋 ${window.currentStudent.name}`;
     
+    const changePwdBtn = document.createElement('button');
+    changePwdBtn.className = 'btn-change-pwd';
+    changePwdBtn.id = 'btn-change-pwd';
+    changePwdBtn.innerHTML = '🔑 Đổi mật khẩu';
+    changePwdBtn.style.marginRight = '8px';
+    changePwdBtn.addEventListener('click', showChangePasswordModal);
+    
     const logoutBtn = document.createElement('button');
     logoutBtn.className = 'btn-logout';
     logoutBtn.id = 'btn-logout';
@@ -396,6 +462,7 @@ function updateHeaderWithStudent() {
     logoutBtn.addEventListener('click', handleLogout);
     
     authSection.appendChild(nameSpan);
+    authSection.appendChild(changePwdBtn);
     authSection.appendChild(logoutBtn);
   } else {
     // Chưa đăng nhập → hiện nút đăng nhập mặc định
@@ -405,5 +472,142 @@ function updateHeaderWithStudent() {
     loginBtn.id = 'btn-login';
     loginBtn.textContent = 'Đăng nhập';
     authSection.appendChild(loginBtn);
+  }
+}
+
+// =====================================================================
+// ĐỔI MẬT KHẨU
+// =====================================================================
+
+function showChangePasswordModal() {
+  if (document.getElementById('change-pwd-modal')) return;
+  
+  // Icon mắt nhắm
+  const eyeSlashIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>`;
+
+  const modalHTML = `
+    <div id="change-pwd-modal" class="modal-overlay">
+      <div class="modal-content" style="max-width: 440px; padding: 32px; border-radius: 12px; box-shadow: 0 4px 24px rgba(0,0,0,0.1);">
+        <h3 style="text-align: center; margin-top: 0; margin-bottom: 8px; font-size: 1.5rem; color: #1e293b;">Đổi mật khẩu</h3>
+        <p style="text-align: center; color: #64748b; font-size: 1rem; margin-top: 0; margin-bottom: 24px;">Cập nhật mật khẩu để bảo mật tài khoản của bạn</p>
+        
+        <div id="pwd-error-msg" class="login-error"></div>
+        
+        <div class="login-form-group" style="margin-bottom: 20px;">
+          <label style="color: #475569; font-weight: 500;">Mật khẩu cũ</label>
+          <div class="pwd-input-wrapper">
+            <input type="password" id="old-pwd" class="login-input" placeholder="Mật khẩu hiện tại" style="background: transparent;">
+            <span class="toggle-pwd" onclick="togglePasswordVisibility('old-pwd', this)">${eyeSlashIcon}</span>
+          </div>
+        </div>
+        
+        <div class="login-form-group" style="margin-bottom: 20px;">
+          <label style="color: #475569; font-weight: 500;">Mật khẩu mới</label>
+          <div class="pwd-input-wrapper">
+            <input type="password" id="new-pwd" class="login-input" placeholder="Mật khẩu mới" style="background: transparent;">
+            <span class="toggle-pwd" onclick="togglePasswordVisibility('new-pwd', this)">${eyeSlashIcon}</span>
+          </div>
+        </div>
+        
+        <div class="login-form-group" style="margin-bottom: 32px;">
+          <label style="color: #475569; font-weight: 500;">Xác nhận mật khẩu</label>
+          <div class="pwd-input-wrapper">
+            <input type="password" id="confirm-pwd" class="login-input" placeholder="Nhập lại mật khẩu mới" style="background: transparent;">
+            <span class="toggle-pwd" onclick="togglePasswordVisibility('confirm-pwd', this)">${eyeSlashIcon}</span>
+          </div>
+        </div>
+        
+        <div style="display: flex; gap: 16px;">
+          <button id="btn-cancel-pwd" style="flex: 1; padding: 14px; border-radius: 8px; border: none; cursor: pointer; background: #1e293b; color: white; font-weight: 600; font-size: 1rem; transition: opacity 0.2s;">Hủy</button>
+          <button id="btn-save-pwd" style="flex: 1; padding: 14px; border-radius: 8px; border: none; cursor: pointer; background: #3b5998; color: white; font-weight: 600; font-size: 1rem; transition: opacity 0.2s;">Lưu</button>
+        </div>
+      </div>
+    </div>
+  `;
+  
+  document.body.insertAdjacentHTML('beforeend', modalHTML);
+  
+  // Nút Hủy Hover
+  const btnCancel = document.getElementById('btn-cancel-pwd');
+  btnCancel.addEventListener('mouseover', () => btnCancel.style.opacity = '0.9');
+  btnCancel.addEventListener('mouseout', () => btnCancel.style.opacity = '1');
+  btnCancel.addEventListener('click', () => {
+    document.getElementById('change-pwd-modal').remove();
+  });
+  
+  // Nút Lưu Hover
+  const btnSave = document.getElementById('btn-save-pwd');
+  btnSave.addEventListener('mouseover', () => btnSave.style.opacity = '0.9');
+  btnSave.addEventListener('mouseout', () => btnSave.style.opacity = '1');
+  btnSave.addEventListener('click', handleChangePassword);
+}
+
+window.togglePasswordVisibility = function(inputId, iconSpan) {
+  const input = document.getElementById(inputId);
+  if (input.type === 'password') {
+    input.type = 'text';
+    iconSpan.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>`;
+  } else {
+    input.type = 'password';
+    iconSpan.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>`;
+  }
+};
+
+async function handleChangePassword() {
+  const oldPwd = document.getElementById('old-pwd').value;
+  const newPwd = document.getElementById('new-pwd').value;
+  const confirmPwd = document.getElementById('confirm-pwd').value;
+  const errorMsg = document.getElementById('pwd-error-msg');
+  const saveBtn = document.getElementById('btn-save-pwd');
+  
+  if (!oldPwd || !newPwd || !confirmPwd) {
+    errorMsg.textContent = 'Vui lòng điền đủ các trường!';
+    return;
+  }
+  
+  if (newPwd !== confirmPwd) {
+    errorMsg.textContent = 'Mật khẩu mới không khớp!';
+    return;
+  }
+  
+  if (!window.currentStudent || !window.currentStudent.id) {
+    errorMsg.textContent = 'Lỗi phiên đăng nhập!';
+    return;
+  }
+  
+  errorMsg.textContent = '';
+  saveBtn.disabled = true;
+  saveBtn.textContent = 'Đang xử lý...';
+  
+  try {
+    const studentRef = window.db.collection('students').doc(window.currentStudent.id);
+    const doc = await studentRef.get();
+    
+    if (!doc.exists) {
+      errorMsg.textContent = 'Không tìm thấy học sinh!';
+      saveBtn.disabled = false;
+      saveBtn.textContent = 'Lưu';
+      return;
+    }
+    
+    const studentData = doc.data();
+    const dbPassword = studentData.password || "123456";
+    
+    if (oldPwd !== dbPassword) {
+      errorMsg.textContent = 'Mật khẩu cũ không chính xác!';
+      saveBtn.disabled = false;
+      saveBtn.textContent = 'Lưu';
+      return;
+    }
+    
+    await studentRef.update({ password: newPwd });
+    alert("Đổi mật khẩu thành công!");
+    document.getElementById('change-pwd-modal').remove();
+    
+  } catch (err) {
+    console.error(err);
+    errorMsg.textContent = 'Lỗi kết nối CSDL!';
+    saveBtn.disabled = false;
+    saveBtn.textContent = 'Lưu';
   }
 }

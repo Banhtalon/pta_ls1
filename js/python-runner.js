@@ -49,7 +49,6 @@ def mock_input(prompt=""):
     if _mock_input_idx < len(_mock_inputs):
         val = _mock_inputs[_mock_input_idx]
         _mock_input_idx += 1
-        print(val)
         return val
     else:
         raise EOFError("EOF when reading a line")
