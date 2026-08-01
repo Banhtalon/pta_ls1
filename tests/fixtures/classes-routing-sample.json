@@ -1,0 +1,14 @@
+{
+  "classes": [
+    { "id": "fixture-ptb", "code": "PTB12", "active": true },
+    { "id": "fixture-pta", "code": "PTA12", "active": true },
+    { "id": "fixture-pti", "code": "PTI12", "active": true },
+    { "id": "fixture-jsb", "code": "JSB15", "active": true },
+    { "id": "fixture-jsa", "code": "JSA15", "active": true },
+    { "id": "fixture-jsi", "code": "JSI15", "active": true },
+    { "id": "fixture-csb", "code": "CSB13", "active": true },
+    { "id": "fixture-csa", "code": "CSA13", "active": true },
+    { "id": "fixture-csi", "code": "CSI13", "active": true },
+    { "id": "fixture-name-fallback", "name": " JSA16 ", "active": true }
+  ]
+}

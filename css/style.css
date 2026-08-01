@@ -235,6 +235,23 @@ a {
   width: 100%;
   animation: fadeIn 0.4s ease forwards;
 }
+.program-picker { max-width: 1200px; margin: 0 auto; padding: 44px 40px 24px; }
+.program-picker-heading { max-width: 650px; margin-bottom: 26px; }
+.program-kicker { margin: 0 0 8px; color: #2674bd; font-size: 12px; font-weight: 800; letter-spacing: 0.12em; }
+.program-picker h2 { margin: 0 0 8px; color: var(--color-primary); font-size: 2rem; }
+.program-picker-heading > p:last-child { margin: 0; color: var(--color-text-light); line-height: 1.55; }
+.program-groups { display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px; }
+.program-group { padding: 20px; border: 1px solid var(--color-border-light); border-radius: 16px; background: #fff; box-shadow: 0 8px 24px rgba(18, 46, 80, 0.06); }
+.program-group h3 { margin: 0 0 14px; color: var(--color-primary); font-size: 1.05rem; }
+.program-grid { display: grid; gap: 10px; }
+.program-link { display: grid; grid-template-columns: 44px 1fr auto; column-gap: 10px; align-items: center; min-height: 68px; padding: 11px; border: 1px solid var(--color-border-light); border-radius: 10px; color: var(--color-text); text-decoration: none; transition: transform .2s, border-color .2s, box-shadow .2s; }
+.program-link:hover { transform: translateY(-2px); border-color: #4c91d0; box-shadow: 0 8px 18px rgba(28, 90, 145, .12); }
+.program-code { display: grid; width: 42px; height: 42px; place-items: center; border-radius: 9px; font-weight: 800; font-size: .78rem; }
+.program-link--python .program-code { background: #e7f7ed; color: #25834e; }
+.program-link--web .program-code { background: #e6f0ff; color: #276fc0; }
+.program-name { font-weight: 700; }
+.program-subtitle { grid-column: 2; color: var(--color-text-light); font-size: .78rem; }
+.program-action { grid-column: 3; grid-row: 1 / span 2; color: #276fc0; font-size: .78rem; font-weight: 700; white-space: nowrap; }
 .hero-section {
   background: linear-gradient(135deg, #162032 0%, #263b5e 100%);
   padding: 80px 40px 160px;
@@ -877,6 +894,8 @@ a {
 }
 
 @media (max-width: 768px) {
+  .program-picker { padding: 32px 20px 16px; }
+  .program-groups { grid-template-columns: 1fr; }
   .levels-container { grid-template-columns: 1fr; }
   .lessons-grid { grid-template-columns: 1fr; }
   .hero-title { font-size: 2rem; }

@@ -1,0 +1,19 @@
+{
+  "name": "codewave-web-learning",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "check:data": "node scripts/validate-course-data.mjs",
+    "test": "node --test tests/course-data.test.mjs",
+    "test:e2e": "playwright test",
+    "check": "npm run check:data && npm test && npm run build"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.55.0",
+    "vite": "^7.1.0"
+  }
+}

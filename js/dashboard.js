@@ -16,6 +16,49 @@ function calculateLevelProgress(levelId) {
 }
 
 /**
+ * Trả về URL của khóa Web tương ứng. Mặc định hai app được phục vụ chung một host;
+ * deploy tách host có thể đặt window.LEARNING_APP_LINKS.webBaseUrl trước khi tải app.
+ */
+function getWebCourseUrl(courseId) {
+  const configuredBase = window.LEARNING_APP_LINKS?.webBaseUrl;
+  const baseUrl = configuredBase || './web-learning/dist/';
+  return `${baseUrl.replace(/\/?$/, '/') }#/${courseId}`;
+}
+
+function renderProgramPicker() {
+  const pythonPrograms = [
+    { code: 'PTB', title: 'Python Basic', subtitle: 'Nền tảng Python', href: '#/basic' },
+    { code: 'PTA', title: 'Python Advance', subtitle: 'Tư duy lập trình', href: '#/advance' },
+    { code: 'PTI', title: 'Python Intensive', subtitle: 'Dự án chuyên sâu', href: '#/intensive' }
+  ];
+  const webPrograms = [
+    { code: 'JSB', title: 'Web Basic', subtitle: 'HTML, CSS & Bootstrap', href: getWebCourseUrl('web-basic') },
+    { code: 'JSA', title: 'Web Advance', subtitle: 'JavaScript & DOM', href: getWebCourseUrl('web-advance') },
+    { code: 'JSI', title: 'Web Intensive', subtitle: 'Firebase & sản phẩm web', href: getWebCourseUrl('web-intensive') }
+  ];
+  const renderCard = (program, subject) => `
+    <a class="program-link program-link--${subject}" href="${program.href}">
+      <span class="program-code">${program.code}</span>
+      <span class="program-name">${program.title}</span>
+      <span class="program-subtitle">${program.subtitle}</span>
+      <span class="program-action">Vào khóa →</span>
+    </a>`;
+
+  return `
+    <section class="program-picker" aria-labelledby="program-picker-title">
+      <div class="program-picker-heading">
+        <p class="program-kicker">CHỌN MÔN HỌC</p>
+        <h2 id="program-picker-title">Bạn muốn học lập trình gì?</h2>
+        <p>Chọn đúng mã khóa để đi thẳng đến nền tảng học tương ứng.</p>
+      </div>
+      <div class="program-groups">
+        <section class="program-group" aria-labelledby="python-programs-title"><h3 id="python-programs-title">🐍 Lập trình Python</h3><div class="program-grid">${pythonPrograms.map((program) => renderCard(program, 'python')).join('')}</div></section>
+        <section class="program-group" aria-labelledby="web-programs-title"><h3 id="web-programs-title">&lt;/&gt; Lập trình Web</h3><div class="program-grid">${webPrograms.map((program) => renderCard(program, 'web')).join('')}</div></section>
+      </div>
+    </section>`;
+}
+
+/**
  * Render thẻ (card) cho từng cấp độ khóa học.
  */
 function renderLevelCard(levelId) {
@@ -106,6 +149,7 @@ function renderDashboard() {
   
   app.innerHTML = `
     <div class="dashboard-page">
+      ${renderProgramPicker()}
       <!-- ===== HERO SECTION ===== -->
       <section class="hero-section">
         <div class="hero-container">

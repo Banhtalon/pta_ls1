@@ -24,6 +24,7 @@ var SESSION_KEY = 'pylearn_student_session';
 function renderLoginPage() {
   var app = document.getElementById('app');
   if (!app) return;
+  var webLearningUrl = window.LEARNING_APP_LINKS?.webBaseUrl || './web-learning/dist/';
 
   // Dùng template literal để tạo HTML cho trang đăng nhập
   app.innerHTML = `
@@ -72,6 +73,7 @@ function renderLoginPage() {
         <!-- Link dành cho giáo viên -->
         <div class="login-footer">
           <a href="#/teacher-login" class="login-teacher-link">Bạn là giáo viên?</a>
+          <a href="${webLearningUrl}" class="login-teacher-link">Học Lập trình Web (JSB/JSA/JSI) →</a>
         </div>
       </div>
       
@@ -691,4 +693,3 @@ function handleTeacherLogin(e) {
     errorMsg.style.display = 'block';
   }
 }
-

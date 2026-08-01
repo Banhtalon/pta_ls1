@@ -12,6 +12,12 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
   
   <link rel="stylesheet" href="css/style.css">
+  <script>
+    // Có thể ghi đè khi hai app được deploy ở hai domain khác nhau.
+    window.LEARNING_APP_LINKS = window.LEARNING_APP_LINKS || {
+      webBaseUrl: './web-learning/dist/'
+    };
+  </script>
 </head>
 <body>
   <!-- HEADER -->
@@ -27,6 +33,7 @@
         <a href="#/basic" class="nav-link" data-nav="basic">Basic</a>
         <a href="#/advance" class="nav-link" data-nav="advance">Advance</a>
         <a href="#/intensive" class="nav-link" data-nav="intensive">Intensive</a>
+        <a href="web-learning/dist/#/" class="nav-link" data-nav="web-learning">Học Web</a>
       </nav>
       <div class="header-actions auth-section">
         <button class="btn-login" id="btn-login">Đăng nhập</button>
